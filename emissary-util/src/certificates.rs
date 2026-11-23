@@ -16,8 +16,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-use rsa::{BigUint, RsaPublicKey};
-use x509_parser::public_key::PublicKey;
+use rsa::{pkcs1::DecodeRsaPublicKey, PublicKey};
+use x509_parser::oid_registry::OID_PKCS1_RSAENCRYPTION;
 
 use std::{collections::HashMap, sync::LazyLock};
 
@@ -112,7 +112,7 @@ pub const CERTIFICATES: &[(&str, &str); 16] = &[
 ];
 
 /// Public keys of the reseed bundle signers.
-pub static PUBLIC_KEYS: LazyLock<HashMap<&'static str, RsaPublicKey>> = LazyLock::new(|| {
+pub static PUBLIC_KEYS: LazyLock<HashMap<&'static str, PublicKey>> = LazyLock::new(|| {
     CERTIFICATES
         .iter()
         .filter_map(|(key, value)| {
@@ -131,15 +131,13 @@ pub static PUBLIC_KEYS: LazyLock<HashMap<&'static str, RsaPublicKey>> = LazyLock
                 return None;
             }
 
-            match cert.public_key().parsed().ok()? {
-                PublicKey::RSA(public_key) => {
-                    let modulus = BigUint::from_bytes_be(public_key.modulus);
-                    let exponent = BigUint::from_bytes_be(public_key.exponent);
-
-                    Some((*key, RsaPublicKey::new(modulus, exponent).ok()?))
-                }
-                _ => None,
+            let public_key = cert.public_key();
+            if public_key.algorithm.algorithm != OID_PKCS1_RSAENCRYPTION {
+                return None;
             }
+
+            let rsa_key = PublicKey::from_pkcs1_der(&public_key.subject_public_key.data).ok()?;
+            Some((*key, rsa_key))
         })
         .collect()
 });

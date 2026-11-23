@@ -191,7 +191,7 @@ impl PortMapper {
 
     /// Run the event loop of UPnP [`PortMapper`].
     pub async fn run(mut self) {
-        let local_address = match netdev::interface::get_local_ipaddr() {
+        let local_address = match netdev::net::ip::get_local_ipaddr() {
             None => {
                 tracing::warn!(
                     target: LOG_TARGET,

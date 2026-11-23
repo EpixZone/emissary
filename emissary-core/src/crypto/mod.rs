@@ -590,7 +590,7 @@ pub enum SigningPublicKey {
     // Taken from `ire` which is licensed under MIT
     //
     // Credits to str4d
-    P256(p256::EncodedPoint, p256::ecdsa::VerifyingKey),
+    P256(p256::Sec1Point, p256::ecdsa::VerifyingKey),
 
     /// DSA-SHA1.
     //
@@ -612,11 +612,11 @@ impl SigningPublicKey {
 
     /// Attempt to construct `SigningPublicKey::P256` from `data`.
     pub fn p256(data: &[u8]) -> Option<Self> {
-        let encoded = p256::EncodedPoint::from_untagged_bytes(data.into());
+        let encoded = p256::Sec1Point::from_untagged_bytes(data.try_into().ok()?);
 
         Some(Self::P256(
             encoded,
-            p256::ecdsa::VerifyingKey::from_encoded_point(&encoded).ok()?,
+            p256::ecdsa::VerifyingKey::from_sec1_point(&encoded).ok()?,
         ))
     }
 

@@ -28,7 +28,7 @@ lazy_static = { version = "1.5.0", default-features = false }
 ml-kem = { version = "0.3.0-rc.0" }
 num-bigint = { version = "0.4.6", default-features = false }
 num-traits = { version = "0.2.19", default-features = false }
-p256 = { version = "0.13.2", default-features = false, features = ["alloc", "ecdsa", "ecdsa-core"] }
+p256 = { version = "0.14.0", default-features = false, features = ["alloc", "ecdsa"] }
 sha1 = { version = "0.10.6", default-features = false }
 siphasher = { version = "1.0.1", default-features = false }
 spin = { version = "0.10.0", default-features = false, features = ["rwlock"], optional = true }
